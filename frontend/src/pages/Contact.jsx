@@ -1,16 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import Title from '../components/Title';
 import { assets } from '../assets/assets';
-import { toast } from 'react-toastify'; // Import react-toastify for toast notifications
-import 'react-toastify/dist/ReactToastify.css'; // Import styles for react-toastify
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import axios from 'axios';
+import { ShopContext } from '../context/ShopContext';
+import { MessageCircle, Phone, Mail, MapPin } from 'lucide-react';
 
 const Contact = () => {
+  const { backendUrl } = useContext(ShopContext);
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
     email: '',
     message: '',
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Handle input changes
   const handleChange = (e) => {
@@ -20,85 +25,124 @@ const Contact = () => {
 
   // Handle form submission
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Prevent default form submission behavior
+    e.preventDefault();
+
+    if (!formData.name || !formData.phone) {
+      toast.error('Please enter your name and phone number.');
+      return;
+    }
+
+    setIsSubmitting(true);
 
     try {
-      // Send data to Web3Forms using fetch
-      const response = await fetch('https://api.web3forms.com/submit', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-        body: JSON.stringify({
-          ...formData,
-          access_key: '66cec739-a870-461b-9ab6-1c71ab5fbd8d', // Replace with your actual Web3Forms access key
-        }),
+      // 1. Trigger WhatsApp First directly to 8128374219
+      const primaryWhatsApp = '918128374219';
+      const whatsAppText = 
+`💬 *NEW INQUIRY - WELCOME ENTERPRISE*
+━━━━━━━━━━━━━━━━━━━━━━━━━
+👤 *Name:* ${formData.name}
+📞 *Phone:* ${formData.phone}
+✉️ *Email:* ${formData.email || 'Not provided'}
+📝 *Message:*
+${formData.message || 'Customer requested consultation.'}
+━━━━━━━━━━━━━━━━━━━━━━━━━
+_Dispatched via Welcome Enterprise Contact Desk_`;
+
+      const waUrl = `https://wa.me/${primaryWhatsApp}?text=${encodeURIComponent(whatsAppText)}`;
+      
+      try {
+        window.open(waUrl, '_blank');
+      } catch (err) {
+        console.error('WhatsApp popup error:', err);
+      }
+
+      // 2. Trigger Email notification to welcomefurniture.co@gmail.com via backend
+      if (backendUrl) {
+        try {
+          await axios.post(`${backendUrl}/api/inquiry/send`, {
+            name: formData.name,
+            phone: formData.phone,
+            email: formData.email,
+            message: formData.message,
+            type: 'Website Contact Inquiry'
+          });
+        } catch (apiErr) {
+          console.warn('Backend inquiry notification notice:', apiErr.message);
+        }
+      }
+
+      toast.success('Inquiry submitted! WhatsApp triggered & email sent to welcomefurniture.co@gmail.com');
+
+      // Reset the form fields
+      setFormData({
+        name: '',
+        phone: '',
+        email: '',
+        message: '',
       });
 
-      const result = await response.json();
-
-      if (result.success) {
-        // Show success toast
-        toast.success('Message sent successfully!', {
-          position: 'top-right',
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-        });
-
-        // Reset the form fields
-        setFormData({
-          name: '',
-          phone: '',
-          email: '',
-          message: '',
-        });
-      } else {
-        // Show error toast if submission fails
-        toast.error('Failed to send message. Please try again.', {
-          position: 'top-right',
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-        });
-      }
     } catch (error) {
       console.error(error);
-      // Show error toast if there's an exception
-      toast.error('An error occurred. Please try again later.', {
-        position: 'top-right',
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
+      toast.error('An error occurred. Please reach out via WhatsApp at +91 81283 74219');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="pt-24">
+    <div className="pt-6 sm:pt-12 md:pt-16">
       {/* Title */}
-      <div className="text-center text-2xl">
-        <Title text1={'CONTACT'} text2={'US'} />
+      <div className="text-center text-xl sm:text-2xl">
+        <Title text1={'CONTACT'} text2={'& CUSTOM COMMISSIONS'} />
+        <p className="text-xs text-gray-500 max-w-lg mx-auto mt-2 px-2">
+          Have an Instagram/Pinterest design photo or need custom furniture sizing? Message our master woodworker on WhatsApp for instant dimensional estimates.
+        </p>
       </div>
 
       {/* Contact Section */}
-      <div className="my-10 flex flex-col justify-center md:flex-row gap-10 mb-28">
-        {/* Image */}
-        <img
-          className="w-full md:max-w-[480px] rounded-lg shadow-lg"
-          src={assets.contact_img}
-          alt="Contact Us"
-        />
+      <div className="my-8 flex flex-col justify-center md:flex-row gap-8 mb-20">
+        {/* Left Column: Image & Direct WhatsApp Box */}
+        <div className="w-full md:max-w-[480px] space-y-4">
+          <img
+            className="w-full rounded-2xl shadow-lg object-cover"
+            src={assets.contact_img}
+            alt="Welcome Furniture & Materials Workshop"
+          />
+          <div className="p-5 rounded-2xl bg-stone-900 text-white space-y-3 shadow-md">
+            <h4 className="font-bold text-sm text-amber-300">📸 Have a photo from Pinterest, Instagram, or a Friend's Home?</h4>
+            <p className="text-xs text-stone-300 font-light leading-relaxed">
+              Don't wait for form replies. Send the photo directly with your room dimensions to get a fast build estimate backed by 30+ Years of Experience.
+            </p>
+            <a
+              href="https://wa.me/918128374219?text=Hello%20Welcome%20Enterprise!%20I%20have%20a%20reference%20photo%20(Pinterest/Instagram)%20and%20want%20to%20commission%20a%20custom%20piece."
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition"
+            >
+              Send Photo on WhatsApp (+91 81283 74219)
+            </a>
+          </div>
+
+          {/* Direct Store Contact Card */}
+          <div className="p-5 rounded-2xl bg-stone-50 border border-stone-200 space-y-3 text-xs text-stone-700">
+            <h4 className="font-bold text-stone-900 uppercase tracking-wider text-xs">Official Contact & Inquiry</h4>
+            <div className="flex items-center gap-2.5">
+              <Phone className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+              <span>Call / WhatsApp: <a href="tel:8128374219" className="font-bold text-stone-900 hover:underline">+91 81283 74219</a></span>
+            </div>
+            <div className="flex items-center gap-2.5">
+              <Mail className="w-4 h-4 text-blue-600 flex-shrink-0" />
+              <span className="truncate">Primary Email: <a href="mailto:welcomefurniture.co@gmail.com" className="font-bold text-stone-900 hover:underline break-all">welcomefurniture.co@gmail.com</a></span>
+            </div>
+            <div className="flex items-start gap-2.5">
+              <MapPin className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+              <span>Shop No. 2, Vallabh Nagar Complex, Novino, Tarsali Road, Opp. Uma Nagar, Tarsali, Vadodara</span>
+            </div>
+          </div>
+        </div>
 
         {/* Form */}
-        <div className="md:w-1/2 bg-white p-6 rounded-lg shadow-lg">
+        <div className="w-full md:w-1/2 bg-white p-5 sm:p-6 rounded-2xl shadow-md border border-gray-100">
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Name Field */}
             <input

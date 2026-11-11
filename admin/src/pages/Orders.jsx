@@ -36,7 +36,7 @@ const Orders = ({ token }) => {
     try {
       const response = await axios.post(backendUrl + '/api/order/status' , {orderId, status:event.target.value}, { headers: {token}})
       if (response.data.success) {
-        toast.success("Statud Updated Successfully")
+        toast.success("Status Updated Successfully")
         await fetchAllOrders()
       }
     } catch (error) {
@@ -50,48 +50,85 @@ const Orders = ({ token }) => {
   }, [token])
 
   return (
-    <div>
-      <h3>Order Page</h3>
+    <div className="space-y-6">
+      <div className="pb-4 border-b border-gray-200">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">
+          Customer Orders
+        </h1>
+        <p className="text-xs sm:text-sm text-gray-500 mt-0.5">
+          Track customer order fulfillment, dispatch status, and payment verification.
+        </p>
+      </div>
+
       <div>
-        {
+        {orders.length === 0 ? (
+          <div className="bg-white rounded-xl border border-gray-200 p-12 text-center text-gray-500 text-sm">
+            No customer orders recorded yet.
+          </div>
+        ) : (
           orders.map((order, index) => (
-            <div className='grid grid-cols-1 sm:grid-cols-[0.5fr_2fr_1fr] lg:grid-cols-[0.5fr_2fr_1fr_1fr_1fr] gap-3 items-start border-2 border-gray-200 p-5 md:p-8 my-3 md:my-4 text-xs sm:text-sm text-gray-700' key={index}>
-              <img className='w-12' src={assets.parcel_icon} alt="" />
+            <div
+              className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 my-3 text-xs sm:text-sm text-gray-700 grid grid-cols-1 sm:grid-cols-[auto_1fr_1fr] lg:grid-cols-[auto_2fr_1fr_1fr_1fr] gap-4 items-start"
+              key={index}
+            >
+              <img className="w-12 h-12 object-contain bg-gray-50 p-2 rounded-lg border border-gray-100 flex-shrink-0" src={assets.parcel_icon} alt="Parcel" />
               <div>
-                <div>
-                  {order.items.map((item, index) => {
-                    if (index === order.items.length - 1) {
-                      return <p className='py-0.5' key={index}> {item.name} x {item.quantity} </p>
-                    }
-                    else {
-                      return <p className='py-0.5' key={index}> {item.name} x {item.quantity} ,</p>
-                    }
-                  })}
+                <div className="space-y-0.5">
+                  {(order.items || []).map((item, itemIdx) => (
+                    <p className="font-semibold text-gray-900" key={itemIdx}>
+                      {item.name} <span className="text-gray-500 font-normal">x {item.quantity}</span>
+                      {item.size && <span className="text-xs bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded ml-1.5">{item.size}</span>}
+                    </p>
+                  ))}
                 </div>
-                <p className='mt-3 mb-2 font-medium'>{order.address.firstName + " " + order.address.lastName}</p>
-                <div>
-                  <p>{order.address.street + ","}</p>
-                  <p>{order.address.city + ", " + order.address.state + ", " + order.address.country + ", " + order.address.zipcode}</p>
+                <p className="mt-3 font-bold text-gray-900">
+                  {(order.address?.firstName || 'Customer') + ' ' + (order.address?.lastName || '')}
+                </p>
+                <div className="text-gray-500 text-xs mt-0.5">
+                  <p>{order.address?.street || 'No street provided'}</p>
+                  <p>{order.address?.city || ''}, {order.address?.state || ''}, {order.address?.country || ''} {order.address?.zipcode ? `- ${order.address.zipcode}` : ''}</p>
+                  <p className="font-mono text-gray-700 mt-1">{order.address?.phone || 'No phone'}</p>
                 </div>
-                <p>{order.address.phone}</p>
               </div>
+
+              <div className="text-xs space-y-1 bg-gray-50/70 p-3 rounded-lg border border-gray-100">
+                <p><span className="text-gray-400">Total Items:</span> <span className="font-semibold text-gray-800">{order.items.length}</span></p>
+                <p><span className="text-gray-400">Method:</span> <span className="font-semibold text-gray-800">{order.paymentMethod}</span></p>
+                <p>
+                  <span className="text-gray-400">Payment:</span>{' '}
+                  <span className={`font-bold ${order.payment ? 'text-emerald-600' : 'text-amber-600'}`}>
+                    {order.payment ? '✓ Done' : '⏳ Pending'}
+                  </span>
+                </p>
+                <p><span className="text-gray-400">Date:</span> <span className="text-gray-600">{new Date(order.date).toLocaleDateString()}</span></p>
+              </div>
+
+              <div className="text-left lg:text-center">
+                <p className="text-[11px] text-gray-400 uppercase tracking-wider font-semibold">Total Amount</p>
+                <p className="text-base sm:text-lg font-bold text-gray-900">
+                  {currency}{order.amount?.toLocaleString()}
+                </p>
+              </div>
+
               <div>
-                <p className='text-sm sm:text-[15px]'>Items : {order.items.length}</p>
-                <p className='mt-3'>Method : {order.paymentMethod}</p>
-                <p>Payment : { order.payment ? 'Done' : 'Pending' }</p>
-                <p>Date : {new Date(order.date).toLocaleDateString()}</p>
+                <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">
+                  Order Status
+                </label>
+                <select
+                  onChange={(event) => statusHandler(event, order._id)}
+                  value={order.status}
+                  className="w-full p-2 text-xs font-semibold border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-black/10 focus:border-black"
+                >
+                  <option value="Order Placed">📦 Order Placed</option>
+                  <option value="Packing">🛠️ Packing</option>
+                  <option value="Shipped">🚚 Shipped</option>
+                  <option value="Out for delivery">🛵 Out for delivery</option>
+                  <option value="Delivered">✅ Delivered</option>
+                </select>
               </div>
-              <p className='text-sm sm:text-[15px]'>{currency}{order.amount}</p>
-              <select onChange={(event)=>statusHandler(event,order._id)} value={order.status} className='p-2 font-semibold'>
-                <option value="Order Placed">Order Placed</option>
-                <option value="Packing">Packing</option>
-                <option value="Shipped">Shipped</option>
-                <option value="Out for delivery">Out for delivery</option>
-                <option value="Delivered">Delivered</option>
-              </select>
             </div>
           ))
-        }
+        )}
       </div>
     </div>
   )

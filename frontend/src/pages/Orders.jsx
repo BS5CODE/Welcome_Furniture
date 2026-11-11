@@ -64,19 +64,19 @@ const Orders = () => {
               className="bg-white shadow-md rounded-lg overflow-hidden border border-gray-200"
             >
               {/* Order Header */}
-              <div className="px-6 py-4 bg-gray-100 border-b border-gray-200 flex justify-between items-center">
-                <div>
-                  <p className="text-sm font-medium text-gray-700">
-                    Order ID: <span className="text-gray-900">{order.orderId}</span>
+              <div className="px-4 sm:px-6 py-3 sm:py-4 bg-gray-100 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                <div className="min-w-0">
+                  <p className="text-xs sm:text-sm font-medium text-gray-700 truncate">
+                    Order ID: <span className="text-gray-900 font-mono text-[11px] sm:text-xs break-all">{order.orderId}</span>
                   </p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-[11px] sm:text-xs text-gray-500 mt-0.5">
                     Date: <span className="font-medium">{new Date(order.date).toDateString()}</span>
                   </p>
-                  <p className="text-xs text-gray-500">
-                    Total Amount: <span className="font-medium">{order.amount}</span>
+                  <p className="text-[11px] sm:text-xs text-gray-500">
+                    Total Amount: <span className="font-bold text-gray-900">{currency}{order.amount}</span>
                   </p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 self-start sm:self-center">
                   <span
                     className={`inline-block w-2 h-2 rounded-full ${order.status === 'Delivered'
                         ? 'bg-green-500'
@@ -85,30 +85,30 @@ const Orders = () => {
                           : 'bg-yellow-500'
                       }`}
                   ></span>
-                  <p className="text-sm font-medium capitalize">{order.status.toLowerCase()}</p>
+                  <p className="text-xs sm:text-sm font-medium capitalize">{order.status.toLowerCase()}</p>
                 </div>
               </div>
 
               {/* Order Items */}
               <div className="divide-y divide-gray-200">
                 {order.items.map((item, itemIndex) => (
-                  <div key={itemIndex} className="px-6 py-4 flex items-start gap-6">
+                  <div key={itemIndex} className="px-4 sm:px-6 py-3.5 sm:py-4 flex items-start gap-3 sm:gap-6">
                     {/* Item Image */}
                     <img
-                      className="w-20 h-20 object-cover rounded-md"
-                      src={item.image[0]}
+                      className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-md flex-shrink-0 border border-gray-200"
+                      src={Array.isArray(item.image) ? item.image[0] : (item.image || '')}
                       alt={item.name}
                     />
 
                     {/* Item Details */}
-                    <div className="flex-1">
-                      <p className="text-base font-medium text-gray-900">{item.name}</p>
-                      <div className="flex items-center gap-3 mt-2 text-sm text-gray-700">
-                        <p>{currency}{item.price}</p>
-                        <p>Quantity: {item.quantity}</p>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm sm:text-base font-semibold text-gray-900 truncate">{item.name}</p>
+                      <div className="flex items-center gap-3 mt-1 text-xs sm:text-sm text-gray-700">
+                        <p className="font-bold">{currency}{item.price}</p>
+                        <p className="text-gray-500">Qty: {item.quantity}</p>
                       </div>
-                      <p className="mt-2 text-xs text-gray-500">
-                        Payment: <span className="font-medium">{order.paymentMethod}</span>
+                      <p className="mt-1 text-[11px] sm:text-xs text-gray-500">
+                        Payment: <span className="font-medium text-gray-700">{order.paymentMethod}</span>
                       </p>
                     </div>
                   </div>

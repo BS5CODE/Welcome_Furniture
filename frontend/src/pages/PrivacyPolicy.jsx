@@ -103,8 +103,8 @@ const PrivacyPolicy = () => {
         If you have any questions or concerns about this Privacy Policy, please contact us at:
       </p>
       <ul>
-        <li>Email: info@welcomefurniture.com</li>
-        <li>Phone: +91-942-918-8625</li>
+        <li>Email: welcomefurniture.co@gmail.com</li>
+        <li>Phone: +91 81283 74219</li>
         <li>Address: Shop No 2, Vallabh Nagar Complex
         Tarsali, Vadodara 390010, India</li>
       </ul>

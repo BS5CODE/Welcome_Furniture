@@ -1,3 +1,15 @@
 node_modules
-
 *.env
+.env
+backend/.env
+frontend/.env
+admin/.env
+dist
+*/dist
+.DS_Store
+backend/uploads/*
+!backend/uploads/.gitkeep
+frontend/public/uploads
+admin/public/uploads
+*.log
+

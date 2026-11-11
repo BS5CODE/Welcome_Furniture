@@ -7,8 +7,9 @@ const NewsletterBox = ({ inView }) => {
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.1),transparent_70%)]"></div>
       <motion.div
         className="container mx-auto max-w-4xl text-center relative z-10"
-        initial={{ opacity: 0, y: 50 }}
-        animate={inView ? { opacity: 1, y: 0 } : {}}
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.1 }}
         transition={{ duration: 0.6 }}
       >
         <h2 className="text-3xl md:text-4xl font-light mb-6">

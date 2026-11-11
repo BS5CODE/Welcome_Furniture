@@ -37,7 +37,43 @@ const PlaceOrder = () => {
         setFormData(data => ({ ...data, [name]: value }))
     }
 
-    const initPay = (order) => {
+    const triggerOrderNotifications = (orderResult, orderData) => {
+        const primaryWhatsApp = '918128374219';
+        let waUrl = orderResult?.whatsAppUrl;
+
+        if (!waUrl) {
+            const customerName = `${orderData.address?.firstName || ''} ${orderData.address?.lastName || ''}`.trim();
+            const phone = orderData.address?.phone || '';
+            const email = orderData.address?.email || '';
+            const total = orderData.amount || 0;
+            const itemsList = orderData.items?.map((it, idx) => `\n${idx + 1}. ${it.name} (x${it.quantity}) - ₹${Number(it.price).toLocaleString()}`).join('') || '';
+
+            const text = 
+`🔔 *NEW ORDER RECEIVED - WELCOME ENTERPRISE*
+━━━━━━━━━━━━━━━━━━━━━━━━━
+📦 *Order ID:* ${orderResult?.orderId ? String(orderResult.orderId).slice(-8).toUpperCase() : 'NEW'}
+👤 *Customer:* ${customerName}
+📞 *Phone:* ${phone}
+✉️ *Email:* ${email}
+💰 *Total Amount:* ₹${Number(total).toLocaleString()}
+
+🛒 *ITEMS:*${itemsList}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━
+_Triggered on WhatsApp first + Email sent to welcomefurniture.co@gmail.com_`;
+
+            waUrl = `https://wa.me/${primaryWhatsApp}?text=${encodeURIComponent(text)}`;
+        }
+
+        // Trigger WhatsApp immediately
+        try {
+            window.open(waUrl, '_blank');
+        } catch (e) {
+            console.error('Failed to open WhatsApp window:', e);
+        }
+    };
+
+    const initPay = (order, orderData) => {
         const options = {
             key: import.meta.env.VITE_RAZORPAY_KEY_ID,
             amount: order.amount,
@@ -51,7 +87,8 @@ const PlaceOrder = () => {
                     setIsProcessing(true);
                     const { data } = await axios.post(backendUrl + '/api/order/verifyRazorpay', response, { headers: { token } })
                     if (data.success) {
-                        toast.success('Payment successful!');
+                        toast.success('Order placed! WhatsApp alert triggered & email sent to welcomefurniture.co@gmail.com');
+                        triggerOrderNotifications(data, orderData || { address: formData, amount: getCartAmount() });
                         setCartItems({})
                         navigate('/orders')
                     } else {
@@ -136,7 +173,8 @@ const PlaceOrder = () => {
                     setIsProcessing(true);
                     const response = await axios.post(backendUrl + '/api/order/place', orderData, { headers: { token } })
                     if (response.data.success) {
-                        toast.success('Order placed successfully!');
+                        toast.success('Order placed! WhatsApp alert triggered & email sent to welcomefurniture.co@gmail.com');
+                        triggerOrderNotifications(response.data, orderData);
                         setCartItems({})
                         navigate('/orders')
                     } else {
@@ -148,7 +186,7 @@ const PlaceOrder = () => {
                     setIsProcessing(true);
                     const responseRazorpay = await axios.post(backendUrl + '/api/order/razorpay', orderData, { headers: { token } })
                     if (responseRazorpay.data.success) {
-                        initPay(responseRazorpay.data.order)
+                        initPay(responseRazorpay.data.order, orderData)
                     } else {
                         toast.error(responseRazorpay.data.message || 'Failed to initialize payment');
                     }
@@ -192,7 +230,7 @@ const PlaceOrder = () => {
 
             {/* ------------- Right Side ------------------ */}
             <div className='mt-8'>
-                <div className='mt-8 min-w-80'>
+                <div className='mt-8 w-full max-w-md sm:min-w-80'>
                     <CartTotal />
                 </div>
 

@@ -55,29 +55,39 @@ const Cart = () => {
           if (!productData) return null;
 
           return (
-            <div key={index} className='py-4 border-t border-b text-gray-700 grid grid-cols-[4fr_0.5fr_0.5fr] sm:grid-cols-[4fr_2fr_0.5fr] items-center gap-4'>
-              <div className='flex items-start gap-6'>
-                <img className='w-16 sm:w-20' src={productData.image[0]} alt="" />
-                <div>
-                  <p className='text-xs sm:text-lg font-medium'>{productData.name}</p>
-                  <div className='flex items-center gap-5 mt-2'>
-                    <p>{currency}{productData.price}</p>
+            <div key={index} className='py-3.5 sm:py-4 border-t border-b text-gray-700 grid grid-cols-[1fr_auto_auto] sm:grid-cols-[4fr_2fr_0.5fr] items-center gap-2.5 sm:gap-4'>
+              <div className='flex items-center sm:items-start gap-3 sm:gap-5 min-w-0'>
+                <img className='w-14 h-14 sm:w-20 sm:h-20 object-cover rounded-lg flex-shrink-0 border border-gray-200' src={Array.isArray(productData.image) ? productData.image[0] : (productData.image || '')} alt="" />
+                <div className='min-w-0'>
+                  <p className='text-xs sm:text-base font-medium text-gray-900 truncate'>{productData.name}</p>
+                  <div className='flex items-center gap-3 mt-1'>
+                    <p className='text-xs sm:text-sm font-bold text-gray-800'>{currency}{productData.price}</p>
+                    {productData.department && (
+                      <span className='text-[10px] uppercase font-bold text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded'>
+                        {productData.department}
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
               <input 
                 onChange={(e) => handleQuantityUpdate(item._id, e.target.value)}
-                className='border max-w-10 sm:max-w-20 px-1 sm:px-2 py-1' 
+                className='border border-gray-300 rounded-lg w-12 sm:w-16 px-1.5 py-1 text-center text-xs sm:text-sm focus:outline-none focus:ring-1 focus:ring-black' 
                 type="number" 
                 min={1} 
                 defaultValue={item.quantity} 
               />
-              <img 
+              <button
                 onClick={() => handleItemDelete(item._id)}
-                className='w-4 mr-4 sm:w-5 cursor-pointer' 
-                src={assets.bin_icon} 
-                alt="" 
-              />
+                className='p-1.5 text-gray-400 hover:text-red-500 transition-colors'
+                title="Remove item"
+              >
+                <img 
+                  className='w-4 sm:w-5' 
+                  src={assets.bin_icon} 
+                  alt="Remove" 
+                />
+              </button>
             </div>
           );
         })}

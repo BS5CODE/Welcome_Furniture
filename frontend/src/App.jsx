@@ -23,27 +23,29 @@ import ResetPassword from './pages/ResetPassword'
 
 const App = () => {
   return (
-    <div className='px-4 sm:px-[5vw] md:px-[7vw] lg:px-[9vw]'>
+    <div className='min-h-screen flex flex-col bg-white overflow-x-hidden'>
       <ScrollToTop />
       <ToastContainer />
       <Navbar />
       <SearchBar />
-      <Routes>
-        <Route path='/' element={<Home />} />
-        <Route path='/collection' element={<Collection />} />
-        <Route path='/about' element={<About />} />
-        <Route path='/contact' element={<Contact />} />
-        <Route path='/product/:productId' element={<Product />} />
-        <Route path='/cart' element={<Cart />} />
-        <Route path='/login' element={<Login />} />
-        <Route path='/forgot-password' element={<ForgotPassword />} />
-        <Route path='/reset-password/:token' element={<ResetPassword />} />
-        <Route path='/place-order' element={<PlaceOrder />} />
-        <Route path='/orders' element={<Orders />} />
-        <Route path='/verify' element={<Verify />} />
-        <Route path='/privacy-policy' element={<PrivacyPolicy />} />
-        <Route path='/terms' element={<Terms />} />
-      </Routes>
+      <main className='flex-1 px-3 sm:px-[4vw] md:px-[6vw] lg:px-[8vw] w-full max-w-7xl mx-auto'>
+        <Routes>
+          <Route path='/' element={<Home />} />
+          <Route path='/collection' element={<Collection />} />
+          <Route path='/about' element={<About />} />
+          <Route path='/contact' element={<Contact />} />
+          <Route path='/product/:productId' element={<Product />} />
+          <Route path='/cart' element={<Cart />} />
+          <Route path='/login' element={<Login />} />
+          <Route path='/forgot-password' element={<ForgotPassword />} />
+          <Route path='/reset-password/:token' element={<ResetPassword />} />
+          <Route path='/place-order' element={<PlaceOrder />} />
+          <Route path='/orders' element={<Orders />} />
+          <Route path='/verify' element={<Verify />} />
+          <Route path='/privacy-policy' element={<PrivacyPolicy />} />
+          <Route path='/terms' element={<Terms />} />
+        </Routes>
+      </main>
       <Footer />
     </div>
   )
