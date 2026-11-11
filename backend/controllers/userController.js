@@ -84,20 +84,16 @@ const registerUser = async (req, res) => {
 // Route for admin login
 const adminLogin = async (req, res) => {
     try {
-
         const { email, password } = req.body
-        const expectedEmail = process.env.ADMIN_EMAIL || "admin@welcome.com";
-        const expectedPassword = process.env.ADMIN_PASSWORD || "adminpassword123";
+        const expectedEmail = (process.env.ADMIN_EMAIL || "admin@welcome.com").trim();
+        const expectedPassword = (process.env.ADMIN_PASSWORD || "adminpassword123").trim();
         const jwtSecret = process.env.JWT_SECRET || "welcome_furniture_hardware_jwt_secret";
 
-        const isMatch = (email === expectedEmail || email === "admin@welcome.com") && 
-                        (password === expectedPassword || password === "adminpassword123" || password === "admin123");
-
-        if (isMatch) {
-            const token = jwt.sign(email + password, jwtSecret);
-            res.json({ success: true, token })
+        if (email && password && email.trim() === expectedEmail && password === expectedPassword) {
+            const token = jwt.sign(email.trim() + password, jwtSecret);
+            return res.json({ success: true, token })
         } else {
-            res.json({ success: false, message: "Invalid credentials" })
+            return res.json({ success: false, message: "Invalid email or password" })
         }
 
     } catch (error) {

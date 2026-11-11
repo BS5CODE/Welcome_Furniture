@@ -15,7 +15,7 @@ const adminAuth = async (req,res,next) => {
         }
 
         const token_decode = jwt.verify(token, jwtSecret);
-        if (token_decode !== expectedEmail + expectedPassword && token_decode !== 'admin@welcome.comadmin123') {
+        if (token_decode !== expectedEmail + expectedPassword) {
             return res.json({success:false,message:"Not Authorized Login Again"})
         }
         next()
